@@ -13,6 +13,8 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 app.use(cookieParser());
+
+const port = process.env.port || 5000
 connectDB()
     .then(() => {
         console.log("mongo is connected")
@@ -21,7 +23,6 @@ connectDB()
         })
     })
     .catch(err => console.error(err))
-const port = process.env.port || 5001
 app.use("/api/auth", authRoutes)
 app.use("/api/files", fileRoutes);
 app.use("/api/dashboard", dashboardRoutes);
