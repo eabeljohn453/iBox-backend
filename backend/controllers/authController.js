@@ -1,5 +1,6 @@
 import User from "../models/user.js"
 import bcrypt from "bcryptjs";   
+import jwt from "jsonwebtoken";
 export const register = async (req, res) => {
     try {
         const { name, email, password } = req.body
@@ -23,38 +24,44 @@ export const register = async (req, res) => {
     }
 }
 export const login = async (req, res) => {
-    try {
-        const { email, password } = req.body
-        if (!email || !password) {
-            res.status(400).json({ message: "type the required fields" })
-        }
-        const user = await User.findOne({ email })
-        if (!user)
-            return res.status(400).json({ message: "Invalid credentials" });
-        const match = await user.validatePassword(password)
-        if (!match) {
-            res.status(400).json({ message: "wrong password" })
-        }
-        const token = await user.getJWT()
-        res.cookie("token", token,{
-            httponly:true,
-            secure:false,
-            samesite:"strict",
-            maxAge:7*24*60*60*1000,
-        })
-        res.json({
-            token,
-            user: {
-                id: user._id,
-                name: user.email,
-                email: user.email
-            }
-        })
+    console.log("Login route hit! req.body =", req.body);
+  try {
+    console.log(req.body)
+    const { email, password } = req.body;
+    console.log("email",email,password)
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
     }
-    catch (e) {
-        console.log("errror occured", e)
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
-}
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+      { id: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false  
+    });
+
+    return res.status(200).json({ message: "Login success" });
+
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
 export const address = async (req, res) => {
     try { 
         const user = await User.findById(req.user.id).select("name email")

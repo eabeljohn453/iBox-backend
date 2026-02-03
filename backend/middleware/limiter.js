@@ -1,12 +1,8 @@
 import rateLimit from "express-rate-limit";
 
-export const generalLimiter = () => {
-  return rateLimit({ 
-    windowMs: 1000,
-    max: 100,
-    message: "Limit reached too many requests",
-    standardHeaders: true,
-    legacyHeaders: false,
-    keyGenerator: (req) => req.ip,
-  });
-};
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+
+export default generalLimiter;

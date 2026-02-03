@@ -3,6 +3,7 @@ import File from "../models/file.js";
 import { getFileType } from "../utils/fileType.js";
 export const uploadFile=async(req,res)=>{
     try{
+        console.log("req",req.user)
         if (!req.file) {
   return res.status(400).json({ message: "no file provided" });
 }
@@ -27,6 +28,8 @@ export const uploadFile=async(req,res)=>{
             size:result.bytes,
             type:getFileType(req.file.mimetype)
         })
+
+        console.log("req",req.user.id)
         return res.status(201).json(savedFile)
     }
     catch(e){
@@ -44,7 +47,7 @@ export const getImages=async(req,res)=>{
             type:"image",
         }).sort({createdAt:-1})
         .limit(limit)
-        .skip(skip)
+        .skip(skip) 
         const formatted=images.map((file)=>({
             _id:file._id,
             name:file.name,

@@ -4,7 +4,7 @@ import { getFile, getImages, getOther, getvideo, uploadFile } from "../controlle
 import authMiddleware from "../middleware/auth.js"; 
 import { deleteFile, rename } from "../controllers/handleController.js";
 const router = express.Router(); 
-router.post("/upload", authMiddleware, upload.single("file"), uploadFile);
+router.post("/upload",authMiddleware,  upload.single("file"), uploadFile);
 router.get("/images",authMiddleware,getImages)
 router.get("/document",authMiddleware,getFile)
 router.get("/other",authMiddleware,getOther)
